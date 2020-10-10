@@ -7,9 +7,17 @@
 </head>
 <body>
 <h1>DevMonzter</h1>
-<p>Welcome to DevMonzter!</p>
-<img src="https://live.staticflickr.com/7306/26576011703_c44f65da14_b.jpg" alt="bird" style="max-width:100%;height:auto;">
-</br>
-<caption>"bird" by Mathias Appel is marked with CC0 1.0</caption>
+
+<button onclick="returnNum();">Click Here for Number 0-99</button>
+<p id="num"></p>
+
+<script>
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+function returnNum() {
+  document.getElementById("num").innerHTML = getRandomInt(100);
+}
+</script>
 </body>
 </html>
