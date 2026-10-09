@@ -1,23 +1,23 @@
 <!DOCTYPE html>
 <html>
-<link rel="stylesheet" href="css/dm.css">
 <head>
   <title>DevMonzter</title>
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/dm.css">
 </head>
 <body>
-<h1>DevMonzter</h1>
+  <main class="home">
+    <header class="page-header">
+      <h1>DevMonzter</h1>
+      <p class="lede">This is a place for me to gather my thoughts on things I’m interested in, mainly technology and economics, as we shift towards a world with AI.</p>
+    </header>
 
-<p><button onclick="returnNum();">Click Here for a Number 0-99</button></p>
-<p id="num"></p>
+    <section class="posts" id="post-list" aria-label="Blog posts"></section>
 
-<script>
-function getRandomInt(max) {
-  return Math.floor(Math.random() * Math.floor(max));
-}
-function returnNum() {
-  document.getElementById("num").innerHTML = getRandomInt(100);
-}
-</script>
+    <nav class="archive-nav" id="archive-nav" aria-label="Older posts"></nav>
+  </main>
+
+  <script src="site.js"></script>
 </body>
 </html>
