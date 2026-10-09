@@ -179,6 +179,18 @@ li + li {
   border-top: 1px solid var(--rule-color);
 }
 
+.site-footer {
+  border-top: 1px solid var(--rule-color);
+  color: var(--muted-color);
+  font-size: 0.85rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+
+.site-footer p {
+  margin-bottom: 0;
+}
+
 .archive-nav .archive-label {
   font-size: 0.82rem;
   letter-spacing: 0.08em;
