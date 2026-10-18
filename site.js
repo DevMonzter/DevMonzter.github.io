@@ -100,9 +100,14 @@ function parsePostMarkdown(markdown) {
   const trimmed = markdown.trim();
   const heading = trimmed.match(/^#\s+(.+?)(?:\r?\n|$)/);
   const body = heading ? trimmed.slice(heading[0].length).trim() : trimmed;
+  
+  // Find the first paragraph that isn't a heading, list, quote, or SVG block
   const excerpt = body
     .split(/\r?\n\s*\r?\n/)
-    .find((paragraph) => paragraph.trim() && !/^(#{1,6}\s|[-*]\s|>)/.test(paragraph.trim()));
+    .find((paragraph) => {
+      const p = paragraph.trim();
+      return p && !/^(#{1,6}\s|[-*]\s|>)/.test(p) && !/^<svg/i.test(p);
+    });
 
   return {
     title: heading ? heading[1].trim() : "Untitled note",
@@ -263,6 +268,97 @@ function initGoatCounter() {
   script.async = true;
   script.src = "https://gc.zgo.at/count.js";
   document.head.append(script);
+}
+
+function markdownToHtml(markdown) {
+  const lines = markdown.trim().split(/\n/);
+  let html = "";
+  let paragraph = [];
+  let listItems = [];
+  let inSvgBlock = false;
+  let svgLines = [];
+
+  const flushParagraph = () => {
+    if (paragraph.length > 0) {
+      html += `<p>${formatInline(paragraph.join(" "))}</p>`;
+      paragraph = [];
+    }
+  };
+
+  const flushList = () => {
+    if (listItems.length > 0) {
+      html += `<ul>${listItems.map((item) => `<li>${formatInline(item)}</li>`).join("")}</ul>`;
+      listItems = [];
+    }
+  };
+
+  for (const line of lines) {
+    // Handle raw SVG blocks across multiple lines
+    if (!inSvgBlock && /^\s*<svg/i.test(line)) {
+      flushParagraph();
+      flushList();
+      inSvgBlock = true;
+      svgLines.push(line);
+      if (/<\/svg>\s*$/i.test(line)) {
+        html += svgLines.join("\n");
+        svgLines = [];
+        inSvgBlock = false;
+      }
+      continue;
+    }
+
+    if (inSvgBlock) {
+      svgLines.push(line);
+      if (/<\/svg>\s*$/i.test(line)) {
+        html += svgLines.join("\n");
+        svgLines = [];
+        inSvgBlock = false;
+      }
+      continue;
+    }
+
+    if (!line.trim()) {
+      flushParagraph();
+      flushList();
+      continue;
+    }
+
+    if (/^#{1,6}\s+/.test(line)) {
+      flushParagraph();
+      flushList();
+      const level = line.match(/^#+/)[0].length;
+      const content = line.replace(/^#{1,6}\s+/, "");
+      html += `<h${level}>${formatInline(content)}</h${level}>`;
+      continue;
+    }
+
+    if (/^[-*]\s+/.test(line)) {
+      flushParagraph();
+      listItems.push(line.replace(/^[-*]\s+/, ""));
+      continue;
+    }
+
+    if (/^>\s+/.test(line)) {
+      flushParagraph();
+      flushList();
+      html += `<blockquote>${formatInline(line.replace(/^>\s+/, ""))}</blockquote>`;
+      continue;
+    }
+
+    if (/^---\s*$/.test(line)) {
+      flushParagraph();
+      flushList();
+      html += "<hr />";
+      continue;
+    }
+
+    paragraph.push(line.trim());
+  }
+
+  flushParagraph();
+  flushList();
+
+  return html;
 }
 
 async function init() {
